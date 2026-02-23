@@ -1,0 +1,13 @@
+{
+  "name": "copilot-team-management",
+  "version": "1.0.0",
+  "description": "Scripts for managing GitHub Copilot team assignments and cost centers",
+  "type": "module",
+  "main": "scripts/sync-cost-center.js",
+  "scripts": {
+    "sync": "node scripts/sync-cost-center.js"
+  },
+  "dependencies": {
+    "octokit": "^5.0.0"
+  }
+}

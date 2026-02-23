@@ -1,0 +1,32 @@
+name: Sync Cost Center with Team
+
+on:
+  schedule:
+    - cron: '0 */1 * * *'
+    # Runs every hour.
+  workflow_dispatch:
+jobs:
+  sync-cost-center:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Sync Script
+        env:
+          # This token must be a Classic PAT with 'admin:enterprise' scope.
+          GH_PAT: ${{ secrets.GH_PAT }}
+          ENTERPRISE_SLUG: ${{ vars.ENTERPRISE_SLUG }}
+          # Fallback to single pair if config/mappings.json is missing
+          TEAM_SLUG: ${{ vars.TEAM_SLUG }}
+          COST_CENTER_ID: ${{ vars.COST_CENTER_ID }}
+        run: npm run sync

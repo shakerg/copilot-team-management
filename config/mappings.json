@@ -1,0 +1,10 @@
+[
+  {
+    "teamSlug": "fallout",
+    "costCenterId": "uuid-for-fallout"
+  },
+  {
+    "teamSlug": "empire",
+    "costCenterId": "uuid-for-empire"
+  }
+]
