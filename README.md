@@ -37,12 +37,12 @@ This tool supports syncing multiple Teams to multiple Cost Centers.
     ```json
     [
       {
-        "teamSlug": "justice-league",
-        "costCenterId": "uuid-for-justice-league"
+        "teamSlug": "fallout",
+        "costCenterId": "uuid-for-fallout"
       },
       {
-        "teamSlug": "avengers",
-        "costCenterId": "uuid-for-avengers"
+        "teamSlug": "empire",
+        "costCenterId": "uuid-for-empire"
       }
     ]
     ```
