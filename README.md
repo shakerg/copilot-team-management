@@ -164,3 +164,7 @@ To disable removal, edit `scripts/sync-cost-center.js` and comment out the remov
 -   **Could not resolve SCIM users**: The team is IdP-backed and the SCIM user records did not contain a direct GitHub login. Set `ENTERPRISE_USERNAME_SUFFIX` and ensure the generated usernames match your EMU login format.
 -   **Team Not Found**: Verify the `TEAM_SLUG`. It is not the display name. Check the URL: `github.com/enterprises/<ent>/teams/<slug>`.
 -   **Cost Center Not Found**: Ensure the UUID is correct. See [Finding Cost Center IDs](#finding-cost-center-ids) below.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

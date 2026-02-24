@@ -2,6 +2,7 @@
   "name": "copilot-team-management",
   "version": "1.0.0",
   "description": "Scripts for managing GitHub Copilot team assignments and cost centers",
+  "license": "MIT",
   "type": "module",
   "main": "scripts/sync-cost-center.js",
   "scripts": {
