@@ -7,8 +7,8 @@ GitHub's native Cost Center functionality currently allows assigning individual 
 ## Features
 
 - **Automatic Synchronization**: Adds new team members to the Cost Center.
-- **Cleanup**: Removes users from the Cost Center if they are no longer in the details Team (optional, see logic in script).
-- **Scheduled Execution**: Runs automatically via GitHub Actions (default: every 6 hours).
+- **Cleanup**: Removes users from the Cost Center if they are no longer in the team (optional, see logic in script).
+- **Scheduled Execution**: Runs automatically via GitHub Actions (default: every hour).
 - **Manual Trigger**: Can be run manually from the Actions tab.
 
 ## Prerequisites
@@ -47,6 +47,37 @@ This tool supports syncing multiple Teams to multiple Cost Centers.
     ]
     ```
 
+If `config/mappings.json` is missing, the script can also run in **single mapping** mode using environment variables:
+
+- `TEAM_SLUG`
+- `COST_CENTER_ID`
+
+### Finding Cost Center IDs
+
+Cost Centers require a UUID, not a display name. To look up the IDs for all cost centers in your enterprise, run:
+
+```bash
+gh api /enterprises/YOUR_ENTERPRISE_SLUG/settings/billing/cost-centers
+```
+
+Example output:
+
+```json
+{
+  "cost_centers": [
+    {
+      "id": "cc_abc1234567890",
+      "name": "name",
+      ...
+    }
+  ]
+}
+```
+
+Use the `id` value (e.g. `cc_abc1234567890`) as the `costCenterId` in `config/mappings.json`.
+
+> **Note**: You must be authenticated as an Enterprise Admin. Run `gh auth login` first if needed.
+
 ### 3. Configure GitHub Action
 
 1.  Navigate to your repository on GitHub.
@@ -56,21 +87,54 @@ This tool supports syncing multiple Teams to multiple Cost Centers.
 4.  **Variables**:
     *   Create a New Repository Variable for `ENTERPRISE_SLUG`.
 
-*(Note: `TEAM_SLUG` and `COST_CENTER_ID` are no longer needed as environment variables if using `config/mappings.json`, but the script will fallback to them if the config file is missing.)*
+Optional (recommended for EMU):
 
-## Local Development & Testing
+- Create a Repository Variable `ENTERPRISE_USERNAME_SUFFIX` (example: `pipboy`).
+
+*(Note: `TEAM_SLUG` and `COST_CENTER_ID` are only needed if you are not using `config/mappings.json`.)*
+
+## Running in GitHub Actions
+
+This repo includes a workflow at `.github/workflows/sync-cost-center.yml`.
+
+### Scheduled runs
+
+By default the workflow runs every hour.
+
+### Manual runs (recommended for testing)
+
+If you’re changing which team maps to a cost center, update `config/mappings.json` on the default branch and push first.
+
+1. Go to the repository on GitHub.
+2. Open **Actions**.
+3. Select **Sync Cost Center with Team**.
+4. Click **Run workflow**.
+
+The job will fail (red) if any mapping fails to sync.
+
+### Variables and secrets used by the workflow
+
+- **Secret**: `GH_PAT` (Classic PAT, `admin:enterprise`)
+- **Variable**: `ENTERPRISE_SLUG`
+- **Variable (optional)**: `ENTERPRISE_USERNAME_SUFFIX` (EMU username suffix, e.g. `pipboy`)
+- **Variables (optional fallback)**: `TEAM_SLUG`, `COST_CENTER_ID` (only used if `config/mappings.json` is missing)
+
+## Running locally (manual)
 
 To run the script locally on your machine:
 
 1.  **Install Dependencies**:
     ```bash
-    npm install
+    npm ci
     ```
 
 2.  **Set Environment Variables**:
     ```bash
     export GH_PAT="ghp_your_token_here"
     export ENTERPRISE_SLUG="your-enterprise-slug"
+    # Recommended for EMU: set the enterprise username suffix used in EMU logins.
+    # Example: if your enterprise usernames look like "jane-doe_pipboy", set this to "pipboy".
+    export ENTERPRISE_USERNAME_SUFFIX="pipboy"
     ```
 3.  **Ensure `config/mappings.json` is configured correctly.**
 
@@ -96,5 +160,7 @@ To disable removal, edit `scripts/sync-cost-center.js` and comment out the remov
 ## Troubleshooting
 
 -   **403 Forbidden**: Ensure your PAT is a **Classic** token and has the `admin:enterprise` scope. GitHub App tokens will not work.
+-   **403 "These users are not part of enterprise"**: For EMU, make sure the script is resolving to the EMU-style usernames (often suffixed like `*_pipboy`). Set `ENTERPRISE_USERNAME_SUFFIX` explicitly if auto-detection doesn't work.
+-   **Could not resolve SCIM users**: The team is IdP-backed and the SCIM user records did not contain a direct GitHub login. Set `ENTERPRISE_USERNAME_SUFFIX` and ensure the generated usernames match your EMU login format.
 -   **Team Not Found**: Verify the `TEAM_SLUG`. It is not the display name. Check the URL: `github.com/enterprises/<ent>/teams/<slug>`.
--   **Cost Center Not Found**: Ensure the UUID is correct.
+-   **Cost Center Not Found**: Ensure the UUID is correct. See [Finding Cost Center IDs](#finding-cost-center-ids) below.

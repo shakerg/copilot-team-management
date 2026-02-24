@@ -26,6 +26,8 @@ jobs:
           # This token must be a Classic PAT with 'admin:enterprise' scope.
           GH_PAT: ${{ secrets.GH_PAT }}
           ENTERPRISE_SLUG: ${{ vars.ENTERPRISE_SLUG }}
+          # Optional (recommended for EMU): explicit enterprise username suffix (e.g. "pipboy").
+          ENTERPRISE_USERNAME_SUFFIX: ${{ vars.ENTERPRISE_USERNAME_SUFFIX }}
           # Fallback to single pair if config/mappings.json is missing
           TEAM_SLUG: ${{ vars.TEAM_SLUG }}
           COST_CENTER_ID: ${{ vars.COST_CENTER_ID }}
